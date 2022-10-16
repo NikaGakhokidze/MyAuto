@@ -221,7 +221,6 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-             useProguard false
         }
         release {
             // Caution! In production, you need to generate your own keystore file.

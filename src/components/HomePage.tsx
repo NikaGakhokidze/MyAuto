@@ -12,13 +12,15 @@ import {
 import { Button, Text, Searchbar, Checkbox } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Modal from 'react-native-modal';
+import { CategoryModal } from './CategoryModal';
+import { WheelModal } from './WheelModal';
 
-interface wheel {
+export interface wheel {
     title: string,
     wheel_type_id: number
 }
 
-interface category {
+export interface category {
     title: string,
     category_id: number
 }
@@ -116,7 +118,7 @@ export const HomePage = () => {
         };
     }, []);
 
-    const [isVisible, setVisible] = React.useState(false);
+    const [isWheelVisible, setIsWheelVisible] = React.useState(false);
     const [isCatVisible, setIsCatVisible] = React.useState(false);
     const [selectedWheelId, setSelectedWheelId] = React.useState(-1);
     const [selectedCategoryId, setSelectedCategoryId] = React.useState(Array<number>);
@@ -148,13 +150,6 @@ export const HomePage = () => {
             height: 400,
             width: 200,
         },
-        input: {
-            borderWidth: 1,
-            borderRadius: 8,
-            width: '50%',
-            marginBottom: 8,
-            marginTop: 8,
-        },
         fetchButton: {
             width: '30%',
             marginVertical: 8,
@@ -167,26 +162,6 @@ export const HomePage = () => {
             alignItems: 'center',
             justifyContent: 'center',
         },
-        catModal: {
-            backgroundColor: 'white',
-            margin: 0,
-            marginTop: 40,
-            borderTopStartRadius: 16,
-            borderTopEndRadius: 16,
-            padding: 24,
-            ...(keyboardHeight === 0 ? {} : { marginTop: keyboardHeight - 250 }
-            ),
-        },
-        wheelModal: {
-            backgroundColor: 'white',
-            margin: 0,
-            marginTop: 300,
-            borderTopStartRadius: 10,
-            borderTopEndRadius: 10,
-            padding: 24,
-            ...(keyboardHeight === 0 ? {} : { marginTop: keyboardHeight - 24 }
-            ),
-        },
         ListItemStyle: {
             flexDirection: 'column', alignItems: 'center', width: '100%', paddingVertical: 12
             , borderRadius: 12, elevation: 1, marginVertical: 10, paddingHorizontal: 16,
@@ -195,106 +170,15 @@ export const HomePage = () => {
             color: '#fff',
             fontWeight: 'bold',
         },
-        inputContainer: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-            paddingVertical: 12,
-            borderRadius: 12,
-            elevation: 1,
-            marginVertical: 10,
-            paddingHorizontal: 16,
-        },
-        checkboxStyle: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
-            paddingVertical: 12
-            , borderRadius: 12,
-            elevation: 1,
-            marginVertical: 10,
-            paddingHorizontal: 16,
-        },
-        searchbar: {
-            borderRadius: 12,
-            elevation: 2,
-            marginHorizontal: 2,
-            marginVertical: 16,
-            paddingHorizontal: 16,
-        },
+
     });
 
 
     return (
         <>
             <View style={styles.container}><Text style={styles.sectionTitle}>myauto.ge</Text></View>
-            <TouchableOpacity style={{ elevation: 1 }} onPress={() => setIsCatVisible(!isCatVisible)} >
-                <View style={styles.inputContainer}>
-                    <Text>{selectedCategoryId.length === 0 ? 'კატეგორია' : categoryData.filter((d: category) => selectedCategoryId.includes(d.category_id)).map((d: category) => d.title).join(', ')}</Text>
-                    <Icon name="chevron-down" size={16} />
-                </View>
-
-            </TouchableOpacity>
-            <Modal isVisible={isCatVisible} onBackdropPress={() => setIsCatVisible(false)} onSwipeComplete={() => setIsCatVisible(false)}
-                style={styles.catModal} >
-                <ScrollView contentContainerStyle={{ flexGrow: 1, flexDirection: 'column' }}>
-                    <Searchbar style={styles.searchbar} onChangeText={onChangeText} value={text} placeholder="მოძებნე" onSubmitEditing={Keyboard.dismiss} />
-
-                    {categoryData != null && !isLoading ? categoryData.filter((d: category) => d.title.includes(text)).map((val: category, key) => <TouchableOpacity key={key} onPress={(e) => {
-                        if (!selectedCategoryId.includes(val.category_id)) {
-                            setSelectedCategoryId([
-                                ...selectedCategoryId,
-                                val.category_id,
-                            ]);
-                        } else {
-                            setSelectedCategoryId(
-                                selectedCategoryId.filter((id) => id !== val.category_id),
-                            );
-                        }
-
-                    }}>
-                        <View style={styles.checkboxStyle}>
-                            <Checkbox color="#fd4100" status={selectedCategoryId.includes(val.category_id) ? 'checked' : 'unchecked'} />
-                            <Text>{val.title}</Text>
-                        </View>
-                    </TouchableOpacity>) : <Text />}
-
-
-
-
-                </ScrollView>
-                <Button onPress={() => setIsCatVisible(false)} style={{ marginTop: 20, backgroundColor: '#fd4100', borderRadius: 15, padding: 4.5 }}>
-                    <Text style={styles.buttonTextStyle}>არჩევა</Text>
-                </Button>
-            </Modal>
-            <TouchableOpacity onPress={() => setVisible(!isVisible)}>
-
-                <View style={styles.inputContainer}>
-                    <Text>{selectedWheelId === -1 ? 'საჭე' : wheelData.filter((d: wheel) => d.wheel_type_id === selectedWheelId).map((d: wheel) => d.title)}</Text>
-                    <Icon name="chevron-down" size={16} />
-                </View>
-            </TouchableOpacity>
-            <Modal isVisible={isVisible} onBackdropPress={() => setVisible(false)} onSwipeComplete={() => setVisible(false)} style={styles.wheelModal} >
-                <ScrollView contentContainerStyle={{ flexGrow: 1, flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <View>
-                        <Text style={{ textAlign: 'center' }}>საჭე</Text>
-                        {wheelData.map((val: wheel, key) => <TouchableOpacity key={key} onPress={() => { setSelectedWheelId(selectedWheelId === val.wheel_type_id ? -1 : val.wheel_type_id); }}>
-                            <View style={styles.checkboxStyle}>
-                                <Checkbox color="#fd4100" status={val.wheel_type_id === selectedWheelId ? 'checked' : 'unchecked'} />
-                                <Text>{val.title}</Text>
-
-                            </View>
-                        </TouchableOpacity>)}
-                    </View>
-                    <Button onPress={() => setVisible(false)} style={{ backgroundColor: '#fd4100', borderRadius: 15, padding: 4.5 }}>
-                        <Text style={{ color: '#fff', fontWeight: 'bold', }}>არჩევა</Text>
-                    </Button>
-
-                </ScrollView>
-            </Modal>
-
-
+            <CategoryModal data={categoryData} inputText={text} onChangeText={onChangeText} isLoading={isLoading} isVisible={isCatVisible} setVisible={setIsCatVisible} keyboardHeight={keyboardHeight} selectedFilters={selectedCategoryId} setSelectedFilters={setSelectedCategoryId} />
+            <WheelModal data={wheelData} isVisible={isWheelVisible} setVisible={setIsWheelVisible} selectedFilter={selectedWheelId} setSelectedFilter={setSelectedWheelId} />
 
             <Button onPress={() => handleClick()} style={{ backgroundColor: '#fd4100', borderRadius: 15, padding: 4.5 }}>
                 <Text style={styles.buttonTextStyle}>მოძებნა</Text>
